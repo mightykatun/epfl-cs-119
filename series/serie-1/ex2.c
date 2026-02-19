@@ -10,14 +10,14 @@ int main() {
 		2.0, // ail
 		400.0 // pain
 	};
-
+	
 	char ingredients[4][15] = {
 		"Fromage [g]",
 		"Vin blanc [dl]",
 		"Ail [#]",
 		"Pain [g]"
 	};
-
+	
 	int n; // nombre de convives
 	printf("Nombre de personnes: ");
 	scanf("%d", &n);
