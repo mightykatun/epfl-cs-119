@@ -25,7 +25,7 @@ int main() {
 	printf("Pour %d personnes\n", n);
 
 	for (int i = 0; i < 4; i++) {
-        quantities[i] = quantities[i] * n / BASE;
+		quantities[i] = quantities[i] * n / BASE;
 		printf("\t%s : %.1f\n", ingredients[i], quantities[i]);
     }
 
