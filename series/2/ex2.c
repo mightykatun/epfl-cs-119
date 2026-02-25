@@ -11,7 +11,7 @@ char* func_1 (double x) {
 	
 	// check problem value x = 0
 	if (x == problem_val_1) {
-		snprintf(message, sizeof(message), "%s: undefined at x=%.0f", f_name, x); 
+		snprintf(message, sizeof(message), "%s: undefined at x=%.3f", f_name, x); 
 		return message;
 	}
 	// return f(x)
@@ -34,7 +34,7 @@ char* func_2 (double x) {
 	
 	// check if x <= 0 or x = 1
 	if (x <= problem_val_1 || x == problem_val_2) {
-		snprintf(message, sizeof(message), "%s: undefined at x=%.0f", f_name, x); 
+		snprintf(message, sizeof(message), "%s: undefined at x=%.3f", f_name, x); 
 		return message;
 	}
 	// return f(x)
@@ -58,7 +58,7 @@ char* func_3 (double x) {
 	
 	// check problem values
 	if (x == problem_val_1 || (x > problem_interval_lo && x < problem_interval_hi)) {
-		snprintf(message, sizeof(message), "%s: undefined at x=%.0f", f_name, x); 
+		snprintf(message, sizeof(message), "%s: undefined at x=%.3f", f_name, x); 
 		return message;
 	}
 	// return f(x)
@@ -85,12 +85,12 @@ char* func_4 (double x) {
 
 	// first check if the log part is defined
 	if (x > problem_int_log_lo && x < problem_int_log_hi) {
-		snprintf(message, sizeof(message), "%s: undefined at x=%.0f", f_name, x); 
+		snprintf(message, sizeof(message), "%s: undefined at x=%.3f", f_name, x); 
 		return message;
 	}
 	// if the log part is defined, check if the square root will be defined
 	else if (m_expr_4(x) < 0) {
-		snprintf(message, sizeof(message), "%s: undefined at x=%.0f", f_name, x); 
+		snprintf(message, sizeof(message), "%s: undefined at x=%.3f", f_name, x); 
 		return message;
 	}
 	// if the square root is defined, return f(x)
@@ -107,8 +107,10 @@ int main () {
 	double input;
 	scanf("%lf", &input);
 	
-	printf("i\n%s\n", func_1(input));
+	printf("\n%s\n", func_1(input));
 	printf("%s\n", func_2(input));
 	printf("%s\n", func_3(input));
 	printf("%s\n", func_4(input));
+
+	return 0;
 }
