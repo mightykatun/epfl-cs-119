@@ -36,12 +36,12 @@ int main () {
 	
 	int line_count = 0;
 	while (fgets(input_line, sizeof(input_line), stdin) != NULL) {
-		line_count++;
 		sscanf(input_line, "%d %d", &queen_coords[0][line_count], &queen_coords[1][line_count]);
+		line_count++;
 	}
-	for (int i = 0; i < n_queens; i++) {
-		printf("Queen %d: (%d, %d)\n", i + 1, queen_coords[0][i], queen_coords[1][i]);
-	}
+	// for (int i = 0; i < n_queens; i++) {
+	// 	printf("Queen %d: (%d, %d)\n", i + 1, queen_coords[0][i], queen_coords[1][i]);
+	// }
 	printf("\n");
 	
 	// Populate the board with the queens' positions
@@ -63,10 +63,11 @@ int main () {
 		for (int j = 0; j < size; j++) {
 			if (board[i][j] == 1) printf("Q ");
 			else if (i == target[0] && j == target[1]) printf("T ");
-			else printf(". ");
+			else printf("· ");
 		}
 		printf("\n");
 	}
+	printf("\n");
 
 	free(board);
 	free(queen_coords);
