@@ -2,8 +2,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-bool is_attacked (int* target, int* board) {
- return NULL;
+bool is_attacked (int* target, int queen_x, int queen_y) {
+	return target[0] == queen_x // same row
+	    || target[1] == queen_y // same column
+	    || abs(target[0] - queen_x) == abs(target[1] - queen_y); // same diagonal
 }
 
 int main () {
@@ -68,6 +70,13 @@ int main () {
 		printf("\n");
 	}
 	printf("\n");
+
+	int count = 0;
+	for (int i = 0; i < n_queens; i++) {
+		if (is_attacked(target, queen_coords[0][i], queen_coords[1][i]))
+			count++;
+	}
+	printf("Threats: %d\n", count);
 
 	free(board);
 	free(queen_coords);
