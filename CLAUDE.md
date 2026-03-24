@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-This is a C programming course repository organized into 5 weekly series (`series/1/` through `series/5/`). The course is taught in French. Each series contains lecture examples (`lecture-0N.c`), numbered exercises (`ex1.c`, `ex2.c`, etc.), compiled binaries, PDFs, and a README describing the week's theme.
+This is a C programming course repository organized into weekly series (`series/1/` through `series/6/`). The course is taught in French. Each series contains lecture examples (`lecture-0N.c`), numbered exercises (`ex1.c`, `ex2.c`, etc.), compiled binaries, PDFs, and a README describing the week's theme.
 
 ## Building and Running
 
@@ -29,6 +29,7 @@ Run a compiled exercise:
 | 3 | Functions and loops |
 | 4 | Arrays |
 | 5 | Strings and array review |
+| 6 | Pointers and 2D arrays |
 
 ## Code Patterns
 

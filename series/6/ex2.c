@@ -9,6 +9,6 @@ void cycle(int *a, int *b, int *c) { // equivalent to cycle(int* a, int* b, int*
 
 int main() {
 	int x = 5, y = 7, z = 17;
-	cycle(); // à vous de transmettre x, y, z pour les paramètres a, b, c
+	cycle(&x, &y, &z); // à vous de transmettre x, y, z pour les paramètres a, b, c
 	printf("%d %d %d\n", x, y, z);
 }
