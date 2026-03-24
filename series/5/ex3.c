@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-bool is_attacked (int* target, int queen_x, int queen_y) {
+bool is_attacked (const int *target, const int queen_x, const int queen_y) {
 	return target[0] == queen_x // same row
 	    || target[1] == queen_y // same column
 	    || abs(target[0] - queen_x) == abs(target[1] - queen_y); // same diagonal
