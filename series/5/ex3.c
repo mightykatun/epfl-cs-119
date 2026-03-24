@@ -73,8 +73,7 @@ int main () {
 
 	int count = 0;
 	for (int i = 0; i < n_queens; i++) {
-		if (is_attacked(target, queen_coords[0][i], queen_coords[1][i]))
-			count++;
+		if (is_attacked(target, queen_coords[0][i], queen_coords[1][i])) count++;
 	}
 	printf("Threats: %d\n", count);
 
