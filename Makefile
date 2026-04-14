@@ -6,7 +6,7 @@ CC = gcc
 CFLAGS = -w -std=c99
 
 # Find all series directories
-SERIES_NUMBERS := $(shell find series -maxdepth 1 -type d -name "[0-9]*" | sed 's|series/||' | sort -n)
+SERIES_NUMBERS := $(shell find week -maxdepth 1 -type d -name "[0-9]*" | sed 's|week/||' | sort -n)
 
 # Default target - show help
 help:
@@ -22,7 +22,7 @@ all:
 	FAILED=0; \
 	for SERIES in $(SERIES_NUMBERS); do \
 		echo "Compiling series $$SERIES..."; \
-		FILES=$$(find series/$$SERIES -name "*.c" -type f -not -empty -exec grep -l "int main" {} \; 2>/dev/null); \
+		FILES=$$(find week/$$SERIES -name "*.c" -type f -not -empty -exec grep -l "int main" {} \; 2>/dev/null); \
 		if [ -n "$$FILES" ]; then \
 			for FILE in $$FILES; do \
 				BINARY=$$(echo $$FILE | sed 's/\.c$$//'); \
@@ -55,7 +55,7 @@ all:
 
 # Create targets for each series number
 $(SERIES_NUMBERS):
-	@SERIES_DIR=series/$@; \
+	@SERIES_DIR=week/$@; \
 	if [ ! -d "$$SERIES_DIR" ]; then \
 		echo "Series $@ not found!"; \
 		exit 1; \
