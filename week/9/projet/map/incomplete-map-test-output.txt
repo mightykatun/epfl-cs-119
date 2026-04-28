@@ -1,0 +1,141 @@
+xxxxxxx
+xx  ! x
+x     x
+x@     
+xx **  
+x      
+xxx oxx
+xxxxxxx
+xx  ! x
+x     x
+x @    
+xx **  
+x      
+xxx oxx
+xxxxxxx
+xx  ! x
+x     x
+x  @   
+xx **  
+x      
+xxx oxx
+xxxxxxx
+xx  ! x
+x     x
+x   @  
+xx **  
+x      
+xxx oxx
+xxxxxxx
+xx  ! x
+x     x
+x    @ 
+xx **  
+x      
+xxx oxx
+xxxxxxx
+xx  ! x
+x     x
+x     @
+xx **  
+x      
+xxx oxx
+xxxxxxx
+xx  ! x
+x     x
+x     @
+xx **  
+x      
+xxx oxx
+xxxxxxx
+xx  ! x
+x     x
+x    @ 
+xx **  
+x      
+xxx oxx
+xxxxxxx
+xx  ! x
+x     x
+x   @  
+xx **  
+x      
+xxx oxx
+xxxxxxx
+xx  ! x
+x     x
+x  @   
+xx **  
+x      
+xxx oxx
+xxxxxxx
+xx  ! x
+x     x
+x      
+xx @*  
+x  *   
+xxx oxx
+xxxxxxx
+xx  ! x
+x     x
+x      
+xx  *  
+x  @   
+xxx*oxx
+xxxxxxx
+xx  ! x
+x     x
+x      
+xx  *  
+x  @   
+xxx*oxx
+xxxxxxx
+xx  ! x
+x     x
+x      
+xx  *  
+x   @  
+xxx*oxx
+xxxxxxx
+xx  ! x
+x     x
+x@     
+xx **  
+x      
+xxx oxx
+xxxxxxx
+xx  ! x
+x     x
+x @    
+xx **  
+x      
+xxx oxx
+xxxxxxx
+xx  ! x
+x     x
+x  @   
+xx **  
+x      
+xxx oxx
+xxxxxxx
+xx  ! x
+x  @  x
+x      
+xx **  
+x      
+xxx oxx
+xxxxxxx
+xx @! x
+x     x
+x      
+xx **  
+x      
+xxx oxx
+xxxxxxx
+xx  @ x
+x     x
+x      
+xx **  
+x      
+xxx oxx
+Bravo ! Tu as atteint le goal !

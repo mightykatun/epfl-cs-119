@@ -1,0 +1,12 @@
+10 10
+1 1
+xxxxxxxxxx
+x      ! x
+x  oo    x
+x        x
+x    *   x
+x  x *   x
+x  x     x
+x    x+++x
+x        x
+xxxxxxxxxx

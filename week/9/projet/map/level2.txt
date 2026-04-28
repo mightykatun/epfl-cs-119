@@ -1,0 +1,10 @@
+10 8
+5 1
+xxxxxxxxxx
+xx +    xx
+x +  +++ x
+x  !++ + x
+x+ ++ + +x
+x ++   + x
+xx+     xx
+xxxxxxxxxx

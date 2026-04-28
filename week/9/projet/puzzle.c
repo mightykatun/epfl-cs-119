@@ -200,14 +200,14 @@ unsigned long get_unix_timestamp() {
 | ! 		| goal 			 |
 */
 
-
 typedef struct map {
   size_t width;
   size_t height;
   int posx;
   int posy;
-  char 
-}
+  char **map_lines;
+} map_t;
+
 // --- INPUT HANDLING FUNCTIONS ---
 
 
@@ -224,6 +224,11 @@ int main(int argc, char **argv) {
 	// printf("%lu\n", frame_start_time);
 	
 	// Frame computation start
+	printf("\e[?25l");
+	for (size_t i = 0; i < rawmap.height; i++) {
+	  printf(" %s\n", rawmap.map_lines[i]);
+	}
+	printf("\e[1;1H\e[2J");
 
 	// Frame computation end
 	
