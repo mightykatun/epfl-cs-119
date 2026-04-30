@@ -1,11 +1,13 @@
+// --- ORIGINAL INCLUDES ---
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <memory.h>
 
-#include <sys/time.h>
+// --- ADDED INCLUDES ---
 #include <unistd.h>
+#include <termios.h>
 
 // --- NE PAS MODIFIER A PARTIR D'ICI ---
 
@@ -169,19 +171,6 @@ rawmap_t make_default_rawmap() {
 
 // --- HELPER FUNCTIONS & VARIABLES ---
 
-// Config variables
-const size_t frame_rate = 25; // frames per second
-
-// Constants for the game
-const float frame_duration_mus = 1000000.0 / frame_rate; // duration of each frame in microseconds
-
-// Get current UNIX timestamp in microseconds
-unsigned long get_unix_timestamp() {
-  struct timeval tv;
-  gettimeofday(&tv, NULL);
-  return (unsigned long) tv.tv_sec * 1000000 + tv.tv_usec;
-}
-
 // --- DISPLAY FUNCTIONS ---
 
 
@@ -200,48 +189,61 @@ unsigned long get_unix_timestamp() {
 | ! 		| goal 			 |
 */
 
-typedef struct map {
+typedef struct game_state {
   size_t width;
   size_t height;
   int posx;
   int posy;
   char **map_lines;
-} map_t;
+} game_t;
+
 
 // --- INPUT HANDLING FUNCTIONS ---
+
+struct termios original_termios; // store the original terminal settings so we can restore them later
+
+// read input without waiting for a newline, and without echoing the characters to the terminal
+void enable_raw_mode() {
+  tcgetattr(STDIN_FILENO, &original_termios);
+  struct termios t = original_termios;
+  t.c_lflag &= ~(ECHO | ICANON);
+  tcsetattr(STDIN_FILENO, TCSAFLUSH, &t);
+}
+
+// restore the original terminal settings
+void disable_raw_mode() {
+  tcsetattr(STDIN_FILENO, TCSAFLUSH, &original_termios);
+}
+
+// Blocks until a key is pressed, then returns it
+char get_input() {
+  char c;
+  read(STDIN_FILENO, &c, 1);
+  return c;
+}
 
 
 // --- UNIT TESTS ---
 
-// MAIN
+
+// --- MAIN ---
 int main(int argc, char **argv) {
-  // Choisir la carte par défaut, ou celle donnée en argument du programme
-  rawmap_t rawmap = argc < 2 ? make_default_rawmap() : read_map_file(argv[1]);
+  rawmap_t rawmap = argc < 2 ? make_default_rawmap() : read_map_file(argv[1]); // create the rawmap that will be used in the game
 
-  // Main display loop, 25 frames per second
+  enable_raw_mode();
+
   while (true) {
-    unsigned long frame_start_time = get_unix_timestamp(); // Get the start time of the frame
-	// printf("%lu\n", frame_start_time);
-	
-	// Frame computation start
-	printf("\e[?25l");
-	for (size_t i = 0; i < rawmap.height; i++) {
-	  printf(" %s\n", rawmap.map_lines[i]);
-	}
-	printf("\e[1;1H\e[2J");
+    printf("\033[2J\033[H"); // clear screen, move cursor home
+    for (size_t i = 0; i < rawmap.height; i++)
+      printf("%s\n", rawmap.map_lines[i]);
+    fflush(stdout);
 
-	// Frame computation end
-	
-	// Wait for the next frame
-	unsigned long frame_end_time = get_unix_timestamp(); // Get the end time of the frame
-	unsigned long current_frame_duration = frame_end_time - frame_start_time; // Calculate the duration of the frame in microseconds
-	if (current_frame_duration < frame_duration_mus) {
-	  usleep((frame_duration_mus - current_frame_duration) / 1000000); // Sleep for the remaining time to maintain the frame rate
-	}
+    char c = get_input();
+    if (c == 'x') break;
   }
-  
-  // Ne pas oublier de libérer la carte brute.
-  free_rawmap(&rawmap);
 
+  printf("\033[?25h"); // show cursor
+  disable_raw_mode();
+  free_rawmap(&rawmap);
   return 0;
 }
