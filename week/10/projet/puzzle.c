@@ -217,9 +217,9 @@ void disable_raw_mode() {
 
 // Blocks until a key is pressed, then returns it
 char get_input() {
-  char c;
-  read(STDIN_FILENO, &c, 1);
-  return c;
+  char input;
+  read(STDIN_FILENO, &input, 1);
+  return input;
 }
 
 
@@ -234,16 +234,21 @@ int main(int argc, char **argv) {
 
   while (true) {
     printf("\033[2J\033[H"); // clear screen, move cursor home
-    for (size_t i = 0; i < rawmap.height; i++)
-      printf("%s\n", rawmap.map_lines[i]);
-    fflush(stdout);
+    
+	// TODO: update the game state based on the input (currently we just read the input without doing anything with it)
+    
+	// Display the map
+	for (size_t i = 0; i < rawmap.height; i++)
+      printf("%s", rawmap.map_lines[i]); // TODO: display game state, not just raw map
+
+	fflush(stdout); // print the map to the terminal
 
     char c = get_input();
     if (c == 'x') break;
   }
 
-  printf("\033[?25h"); // show cursor
   disable_raw_mode();
+  
   free_rawmap(&rawmap);
   return 0;
 }
