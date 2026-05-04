@@ -6,8 +6,6 @@
 #include <memory.h>
 
 // --- ADDED INCLUDES ---
-#include <unistd.h>
-#include <termios.h>
 
 // --- NE PAS MODIFIER A PARTIR D'ICI ---
 
@@ -173,9 +171,7 @@ rawmap_t make_default_rawmap() {
 
 // --- DISPLAY FUNCTIONS ---
 
-
 // --- GAME LOGIC FUNCTIONS ---
-
 
 // --- MAP DATA HANDLING FUNCTIONS ---
 
@@ -200,28 +196,6 @@ typedef struct game_state {
 
 // --- INPUT HANDLING FUNCTIONS ---
 
-struct termios original_termios; // store the original terminal settings so we can restore them later
-
-// read input without waiting for a newline, and without echoing the characters to the terminal
-void enable_raw_mode() {
-  tcgetattr(STDIN_FILENO, &original_termios);
-  struct termios t = original_termios;
-  t.c_lflag &= ~(ECHO | ICANON);
-  tcsetattr(STDIN_FILENO, TCSAFLUSH, &t);
-}
-
-// restore the original terminal settings
-void disable_raw_mode() {
-  tcsetattr(STDIN_FILENO, TCSAFLUSH, &original_termios);
-}
-
-// Blocks until a key is pressed, then returns it
-char get_input() {
-  char input;
-  read(STDIN_FILENO, &input, 1);
-  return input;
-}
-
 
 // --- UNIT TESTS ---
 
@@ -230,24 +204,9 @@ char get_input() {
 int main(int argc, char **argv) {
   rawmap_t rawmap = argc < 2 ? make_default_rawmap() : read_map_file(argv[1]); // create the rawmap that will be used in the game
 
-  enable_raw_mode();
-
   while (true) {
-    printf("\033[2J\033[H"); // clear screen, move cursor home
-    
-	// TODO: update the game state based on the input (currently we just read the input without doing anything with it)
-    
-	// Display the map
-	for (size_t i = 0; i < rawmap.height; i++)
-      printf("%s", rawmap.map_lines[i]); // TODO: display game state, not just raw map
-
-	fflush(stdout); // print the map to the terminal
-
-    char c = get_input();
-    if (c == 'x') break;
-  }
-
-  disable_raw_mode();
+  
+  } 
   
   free_rawmap(&rawmap);
   return 0;
