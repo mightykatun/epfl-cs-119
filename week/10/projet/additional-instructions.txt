@@ -1,0 +1,43 @@
+Bonjour,
+
+Plusieurs personnes demandent si votre programme doit émettre exactement l'output attendu, tel qu'on le trouve dans les fichiers "*-test-output.txt".
+
+Oui.
+
+Si ce n'est pas exactement ça, vous n'allez pas perdre des points en tant que tel ; mais ça me met de mauvaise parce que mes scripts ne pourront pas dire tout de suite si vous produisez le bon output.
+
+Dans vos projets futurs, vous devrez souvent donner l'output de votre programme comme input d'un second programme. Si vous n'écrivez pas exactement ce qu'il attend, il ne sera pas content.
+
+Comment le tester ? Ce n'est pas possible depuis l'intérieur du programme. Mais pouvez le tester depuis l'extérieur avec quelques commandes (sur Windows, à faire absolument dans WSL) :
+
+bix-puzzle$ ./puzzle level1.txt < level1-test-input.txt > level1-my-output.txt 
+bix-puzzle$ diff -u level1-test-output.txt level1-my-output.txt 
+bix-puzzle$
+
+À répéter avec les différents niveaux et inputs qu'on vous donne. Si le `diff` n'affiche rien (comme ici), c'est que produisez exactement le bon résultat. Sinon, il va afficher quelque chose comme
+
+--- level1-test-output.txt      2026-05-04 11:37:55.341123197 +0200
++++ level1-my-output.txt        2026-05-04 11:46:09.454971398 +0200
+@@ -398,6 +437,7 @@
+ x   x
+ x   x
+ xxxxx
++
+ xxxxx
+ x @ox
+ x*  x
+@@ -408,4 +448,5 @@
+ x   x
+ x   x
+ xxxxx
+-Bravo ! Tu as atteint le goal !
++
++Bravo ! Tu as atteint le goal.
+
+Les lignes commençant par + sont en trop dans ce que vous écrivez. Celles commençant par - manquent.
+
+Deux autres précisions, qui dérivent de la consigne mais j'ai souvent eu la question malgré tout :
+
+    Bix n'est pas assez fort pour pousser deux blocs d'un coup, même si ce sont tous les deux des blocs qui bougent.
+    Les trous ont une profondeur infinie. On peut y faire tomber autant de blocs qu'on veut, et Bix peut encore tomber dedans après.
+
