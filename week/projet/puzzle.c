@@ -237,7 +237,7 @@ char cell_char(game_t *g, int x, int y) {
   switch (get_obj(g, x, y)) {
     case MOVABLE:  return '*';
     case ONE_MOVE: return '+';
-    default: break;
+    default:       break;
   }
   switch (get_terrain(g, x, y)) {
     case FIXED: return 'x';
@@ -372,13 +372,13 @@ void move_bix(game_t *g, rawmap_t *rm, int dx, int dy, bool *won) {
  * whether the game was won or the player quit */
 void apply_command(game_t *g, rawmap_t *rm, char cmd, bool *won, bool *quit) {
   switch (cmd) {
-    case 'e': move_bix(g, rm,  0,  1, won); break;  /* up */
-    case 'd': move_bix(g, rm,  0, -1, won); break;  /* down */
-    case 's': move_bix(g, rm, -1,  0, won); break;  /* left */
-    case 'f': move_bix(g, rm,  1,  0, won); break;  /* right */
-    case 'r': reset_game(g, rm); break;
-    case 'x': *quit = true; break;
-    default: break;   /* ignore unknown characters (including '\n') */
+    case 'e': move_bix(g, rm,  0,  1, won); break; /* up */
+    case 'd': move_bix(g, rm,  0, -1, won); break; /* down */
+    case 's': move_bix(g, rm, -1,  0, won); break; /* left */
+    case 'f': move_bix(g, rm,  1,  0, won); break; /* right */
+    case 'r': reset_game(g, rm);            break;
+    case 'x': *quit = true;                 break;
+    default:                                break; /* ignore unknown characters (including '\n') */
   }
 }
 
