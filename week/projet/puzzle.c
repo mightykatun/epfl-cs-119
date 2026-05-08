@@ -170,37 +170,26 @@ rawmap_t make_default_rawmap() {
 
 // --- HELPER FUNCTIONS & VARIABLES ---
 
-/* layer 1: persistant ground layer (FLOOR -> 0, FIXED -> 1, HOLE -> 2, GOAL -> 3) */
-typedef enum { FLOOR, FIXED, HOLE, GOAL } terrain_t;
+/* cell type */
+typedef enum { FLOOR, FIXED, HOLE, GOAL, MOVABLE, ONE_MOVE, MOVABLE_ON_GOAL } cell_t;
 
-/* layer 2: movable objects on the ground (NONE -> 0 empty, etc ) */
-typedef enum { NONE, MOVABLE, ONE_MOVE } obj_t;
-
-/* game state: two arrays (terrain layer 1 + objects layer 2) indexed by [y * width + x] whith y=0 the bottom row. */
+/* game state: array indexed by [y * width + x] with y=0 the bottom row */
 typedef struct {
   int width;
   int height;
-  int posx, posy;       /* position of Bix */
-  terrain_t *terrain;   /* width * height cells with the base terrain */
-  obj_t *objects;       /* width * height cells with the movable objects */
+  int posx, posy;   /* position of Bix */
+  cell_t *cells;    /* width * height cells */
 } game_t;
 
-/* convert a map character to terrain type */
-terrain_t char_to_terrain(char c) {
+/* convert a map character to cell type */
+cell_t char_to_cell(char c) {
   switch (c) {
     case 'x': return FIXED;
     case 'o': return HOLE;
     case '!': return GOAL;
-    default:  return FLOOR;   /* "space" or "*" or "+" */
-  }
-}
-
-/* convert a map character to object type */
-obj_t char_to_obj(char c) {
-  switch (c) {
     case '*': return MOVABLE;
     case '+': return ONE_MOVE;
-    default:  return NONE;
+    default:  return FLOOR;
   }
 }
 
@@ -214,44 +203,35 @@ int cell_index(game_t *g, int x, int y) {
   return y * g->width + x;
 }
 
-/* get the type of terrain at given (x,y) FIXED if out of bounds (border) */
-terrain_t get_terrain(game_t *g, int x, int y) {
+/* get cell type at (x,y), FIXED if out of bounds (border) */
+cell_t get_cell(game_t *g, int x, int y) {
   if (!in_bounds(g, x, y)) return FIXED;
-  return g->terrain[cell_index(g, x, y)];
+  return g->cells[cell_index(g, x, y)];
 }
 
-/* get the type of object at given (x,y) NONE if out of bounds (no objects) */
-obj_t get_obj(game_t *g, int x, int y) {
-  if (!in_bounds(g, x, y)) return NONE;
-  return g->objects[cell_index(g, x, y)];
-}
-
-/* check if cell is free at given (x,y) */
+/* check if cell free (Bix or block can move there) */
 bool cell_is_free(game_t *g, int x, int y) {
-  return get_obj(g, x, y) == NONE && get_terrain(g, x, y) != FIXED;
+  cell_t c = get_cell(g, x, y);
+  return c == FLOOR || c == HOLE || c == GOAL;
 }
 
-/* return the display character for cell (x,y) and overlays Bix */
+/* return the display character for cell (x,y) -> overlay Bix */
 char cell_char(game_t *g, int x, int y) {
   if (x == g->posx && y == g->posy) return '@';
-  switch (get_obj(g, x, y)) {
-    case MOVABLE:  return '*';
-    case ONE_MOVE: return '+';
-    default:       break;
-  }
-  switch (get_terrain(g, x, y)) {
-    case FIXED: return 'x';
-    case HOLE:  return 'o';
-    case GOAL:  return '!';
-    default:    return ' ';
+  switch (get_cell(g, x, y)) {
+    case FIXED:          return 'x';
+    case HOLE:           return 'o';
+    case GOAL:           return '!';
+    case MOVABLE:        return '*';
+    case MOVABLE_ON_GOAL: return '*';
+    case ONE_MOVE:       return '+';
+    default:             return ' ';
   }
 }
 
 // --- MAP DATA HANDLING FUNCTIONS ---
 
-/* get raw character at game coordinate (x,y) from rawmap
- * rawmap line 0 = top -> game y = height-1
- * lines shorter than width default to space ("padding" with spaces) */
+/* get raw character at gamew (x,y) from rawmap + "padding" with spaces */
 char rawmap_char_at(rawmap_t *rm, int x, int y) {
   int line_idx = (int)rm->height - 1 - y;
   char *line = rm->map_lines[line_idx];
@@ -262,24 +242,18 @@ char rawmap_char_at(rawmap_t *rm, int x, int y) {
   return line[x];
 }
 
-/* create game_t from rawmap_t, builds the terrain and object layers */
+/* create game_t from rawmap_t, build the cell array */
 game_t make_game(rawmap_t *rm) {
   game_t g;
   g.width = (int)rm->width;
   g.height = (int)rm->height;
   g.posx = rm->posx;
   g.posy = rm->posy;
-  int n = g.width * g.height; /* number of cells used for memory allocation */
-  g.terrain = (terrain_t *)calloc(n, sizeof(terrain_t)); /* allocate terrain layer */
-  g.objects = (obj_t *)calloc(n, sizeof(obj_t));		 /* allocate objects layer */
+  int n = g.width * g.height; /* number of cells used for calloc */
+  g.cells = (cell_t *)calloc(n, sizeof(cell_t));
   for (int y = 0; y < g.height; y++) {
     for (int x = 0; x < g.width; x++) {
-      char c = rawmap_char_at(rm, x, y);
-      g.terrain[cell_index(&g, x, y)] = char_to_terrain(c); /* &g is needed to pass the address of g to cell_index
-															 * this isn't self-referential because cell_index only
-															 * uses g for its width and height, which are already set
-															 * at this point */
-      g.objects[cell_index(&g, x, y)] = char_to_obj(c);     /* same note as above for &g */
+      g.cells[cell_index(&g, x, y)] = char_to_cell(rawmap_char_at(rm, x, y));
     }
   }
   return g;
@@ -287,13 +261,11 @@ game_t make_game(rawmap_t *rm) {
 
 /* FREEDOM! */
 void free_game(game_t *g) {
-  free(g->terrain);
-  free(g->objects);
-  g->terrain = NULL;
-  g->objects = NULL;
+  free(g->cells);
+  g->cells = NULL;
 }
 
-/* reassign rawmap to reset */
+/* reasign rawmap to reset */
 void reset_game(game_t *g, rawmap_t *rm) {
   free_game(g);
   *g = make_game(rm);
@@ -301,8 +273,7 @@ void reset_game(game_t *g, rawmap_t *rm) {
 
 // --- DISPLAY FUNCTION ---
 
-/* print the current game state -> top row (y=height-1) first
- * each row is exactly "width" characters followed by a newline. */
+/* print the current game state -> top row (y=height-1) first */
 void display_game(game_t *g) {
   for (int y = g->height - 1; y >= 0; y--) {
     for (int x = 0; x < g->width; x++) {
@@ -314,56 +285,58 @@ void display_game(game_t *g) {
 
 // --- GAME LOGIC FUNCTIONS ---
 
-/* attempt to move Bix by (dx,dy) -> handles pushing blocks, falling in holes,
- * and reaching goal -> sets *won = true if Bix reaches the goal.
- * resets game if Bix falls in a hole */
+/* attempt to move Bix by (dx,dy) -> handle pushing blocks, falling in holes
+ * raeching goal -> sets *won = true
+ * resets game if Bix falls in hole */
 void move_bix(game_t *g, rawmap_t *rm, int dx, int dy, bool *won) {
   int nx = g->posx + dx; /* new x */
   int ny = g->posy + dy; /* new y */
+  cell_t target = get_cell(g, nx, ny);
 
   if (cell_is_free(g, nx, ny)) {
     /* move Bix to (nx, ny) */
     g->posx = nx;
     g->posy = ny;
-    if (get_terrain(g, nx, ny) == HOLE) {
+    if (target == HOLE) {
       reset_game(g, rm);
-    } else if (get_terrain(g, nx, ny) == GOAL) {
-      *won = true; /* the variable won lives in the caller */
+    } else if (target == GOAL) {
+      *won = true; /* the variale won lives in the caller func */
     }
     return;
   }
 
-  /* check if there is a movable block at (nx, ny) */
-  obj_t block = get_obj(g, nx, ny);
-  if (block == NONE) return;  /* FIXED terrain -> can't move block */
+  /* check if there is a pushable block at (nx, ny) */
+  if (target != MOVABLE && target != ONE_MOVE && target != MOVABLE_ON_GOAL) return;
 
-  /* position behind the movable block */
+  /* position behind the block */
   int bx = nx + dx;
   int by = ny + dy;
   if (!cell_is_free(g, bx, by)) return;  /* can't push */
 
-  int idx_block = cell_index(g, nx, ny); /* idx_block is the array index of the cell where the block currently is */
-  int idx_dest = cell_index(g, bx, by); 
+  int idx_block = cell_index(g, nx, ny); /* where the block currently is */
+  int idx_dest = cell_index(g, bx, by);
+  cell_t dest = g->cells[idx_dest];
 
-  /* move the block, start by removing it from current position */
-  g->objects[idx_block] = NONE;
+  /* remove block from current position -> floor */
+  g->cells[idx_block] = (target == MOVABLE_ON_GOAL) ? GOAL : FLOOR;
 
-  if (get_terrain(g, bx, by) == HOLE) {
-    /* block falls in hole: it disappears, hole stays */
-  } else if (block == ONE_MOVE) {
-    /* one-move block becomes fixed terrain at destination */
-    g->terrain[idx_dest] = FIXED;
+  /* place block at destination */
+  if (dest == HOLE) {
+    /* block falls in hole and hole stays */
+  } else if (target == ONE_MOVE) {
+    /* one-move block becomes fixed terrain */
+    g->cells[idx_dest] = FIXED;
   } else {
-    /* movable block: place it at destination */
-    g->objects[idx_dest] = block;
+    /* place movable block ! moaybe on goal */
+    g->cells[idx_dest] = (dest == GOAL) ? MOVABLE_ON_GOAL : MOVABLE;
   }
 
-  /* move Bix */
+  /* move Bix to where the block was */
   g->posx = nx;
   g->posy = ny;
 
-  /* check if Bix lands on the goal (that was hidden under the block) */
-  if (g->terrain[idx_block] == GOAL) {
+  /* if we uncovered a goal -> Bix is on it */
+  if (g->cells[idx_block] == GOAL) {
     *won = true;
   }
 }
@@ -378,7 +351,7 @@ void apply_command(game_t *g, rawmap_t *rm, char cmd, bool *won, bool *quit) {
     case 'f': move_bix(g, rm,  1,  0, won); break; /* right */
     case 'r': reset_game(g, rm);            break;
     case 'x': *quit = true;                 break;
-    default:                                break; /* ignore unknown characters (including '\n') */
+    default:                                break; /* ignore unknown characters */
   }
 }
 
@@ -483,8 +456,8 @@ void test_push_movable(void) {
   /* push block right */
   move_bix(&g, &rm, 1, 0, &won);
   assert(g.posx == 2 && g.posy == 2);
-  assert(get_obj(&g, 3, 2) == MOVABLE);
-  assert(get_obj(&g, 2, 2) == NONE);
+  assert(get_cell(&g, 3, 2) == MOVABLE);
+  assert(get_cell(&g, 2, 2) == FLOOR);
 
   free_game(&g);
   free_rawmap(&rm);
@@ -506,8 +479,7 @@ void test_push_one_move(void) {
   /* push one-move block right */
   move_bix(&g, &rm, 1, 0, &won);
   assert(g.posx == 2 && g.posy == 2);
-  assert(get_obj(&g, 3, 2) == NONE);      /* no object */
-  assert(get_terrain(&g, 3, 2) == FIXED); /* became fixed terrain */
+  assert(get_cell(&g, 3, 2) == FIXED); /* became fixed terrain */
 
   free_game(&g);
   free_rawmap(&rm);
@@ -529,8 +501,7 @@ void test_push_into_hole(void) {
   /* push block right into hole */
   move_bix(&g, &rm, 1, 0, &won);
   assert(g.posx == 2 && g.posy == 2);
-  assert(get_obj(&g, 3, 2) == NONE);     /* block is gone */
-  assert(get_terrain(&g, 3, 2) == HOLE); /* hole remains */
+  assert(get_cell(&g, 3, 2) == HOLE); /* block is gone, hole remains */
 
   free_game(&g);
   free_rawmap(&rm);
@@ -595,7 +566,7 @@ void test_push_blocked(void) {
 
   move_bix(&g, &rm, 1, 0, &won);
   assert(g.posx == 1 && g.posy == 2); /* didn't move */
-  assert(get_obj(&g, 2, 2) == MOVABLE);
+  assert(get_cell(&g, 2, 2) == MOVABLE);
 
   free_game(&g);
   free_rawmap(&rm);
@@ -616,8 +587,8 @@ void test_push_two_blocks(void) {
 
   move_bix(&g, &rm, 1, 0, &won);
   assert(g.posx == 1 && g.posy == 2); /* didn't move: two blocks */
-  assert(get_obj(&g, 2, 2) == MOVABLE);
-  assert(get_obj(&g, 3, 2) == MOVABLE);
+  assert(get_cell(&g, 2, 2) == MOVABLE);
+  assert(get_cell(&g, 3, 2) == MOVABLE);
 
   free_game(&g);
   free_rawmap(&rm);
@@ -644,7 +615,7 @@ void test_reset_command(void) {
   /* reset */
   apply_command(&g, &rm, 'r', &won, &quit);
   assert(g.posx == 1 && g.posy == 2);
-  assert(get_obj(&g, 2, 2) == MOVABLE); /* check if block is back */
+  assert(get_cell(&g, 2, 2) == MOVABLE); /* check if block is back */
 
   free_game(&g);
   free_rawmap(&rm);
@@ -661,10 +632,10 @@ void test_incomplete_map(void) {
   game_t g = make_game(&rm);
 
   /* cells beyond the raw line should be floor */
-  assert(get_terrain(&g, 1, 1) == FLOOR);
-  assert(get_terrain(&g, 2, 1) == FLOOR);
-  assert(get_terrain(&g, 3, 1) == FLOOR);
-  assert(get_terrain(&g, 4, 1) == FLOOR);
+  assert(get_cell(&g, 1, 1) == FLOOR);
+  assert(get_cell(&g, 2, 1) == FLOOR);
+  assert(get_cell(&g, 3, 1) == FLOOR);
+  assert(get_cell(&g, 4, 1) == FLOOR);
 
   free_game(&g);
   free_rawmap(&rm);
