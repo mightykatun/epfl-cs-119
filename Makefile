@@ -7,13 +7,15 @@ CFLAGS = -w -std=c99
 
 # Find all series directories
 SERIES_NUMBERS := $(shell find week -maxdepth 1 -type d -name "[0-9]*" | sed 's|week/||' | sort -n)
+PROJECT_DIR := week/projet
 
 # Default target - show help
 help:
 	@echo "C Programming Course Build System"
 	@echo "================================="
 	@echo "Usage: make N (where N is the series number)"
-	@echo "       make all (compile all series)"
+	@echo "       make all (compile all series and the project)"
+	@echo "       make projet (compile the puzzle project)"
 	@echo "Available series: $(SERIES_NUMBERS)"
 
 # Target to compile all series
@@ -46,10 +48,28 @@ all:
 			echo "No executable files found in series $$SERIES"; \
 		fi; \
 	done; \
+	echo "Compiling project..."; \
+	if $(MAKE) --no-print-directory projet; then \
+		true; \
+	else \
+		FAILED=1; \
+	fi; \
 	if [ $$FAILED -eq 0 ]; then \
 		echo "All series compiled successfully!"; \
 	else \
 		echo "Some compilations failed."; \
+		exit 1; \
+	fi
+
+projet:
+	@if [ ! -f "$(PROJECT_DIR)/puzzle.c" ]; then \
+		echo "Project source not found!"; \
+		exit 1; \
+	fi; \
+	if $(CC) -Wall -Wextra -fsanitize=address,undefined -g "$(PROJECT_DIR)/puzzle.c" -o "$(PROJECT_DIR)/puzzle" >/dev/null 2>&1; then \
+		echo "[PASS] $(PROJECT_DIR)/puzzle"; \
+	else \
+		echo "[FAIL] $(PROJECT_DIR)/puzzle"; \
 		exit 1; \
 	fi
 
@@ -87,4 +107,4 @@ $(SERIES_NUMBERS):
 	done; \
 	exit $$FAILED
 
-.PHONY: help all $(SERIES_NUMBERS)
+.PHONY: help all projet $(SERIES_NUMBERS)
