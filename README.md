@@ -29,9 +29,9 @@ make projet
 - `make all` compile tous les fichiers C executables trouvés dans `week/`
 - `make <numero/"projet">` compile une semaine precise
 
-## Projet puzzle
+## Projet
 
-Le projet principal se trouve dans `week/projet/`.
+Le projet de midterm se trouve dans `week/projet/`.
 
 Compilation manuelle :
 
