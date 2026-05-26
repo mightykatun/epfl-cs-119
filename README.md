@@ -4,12 +4,12 @@ Depot de travail pour un cours de programmation en C.
 
 ## Contenu
 
-- `week/1` a `week/10` : exercices et notes organises par semaine
-- `week/projet/` : projet principal autour de `puzzle.c`
-- `week/*/README.md` : resume rapide des sujets vus chaque semaine
+- `week/<semaine #>` : exercices et notes organises par semaine
+- `week/projet/` : projet de midterm "bix" `puzzle.c`
+- `week/*/README.md` : resumé rapide des sujets vus chaque semaine
 - `Makefile` : compilation des exercices par semaine ou en une fois
 
-## Prerequis
+## Prérequis
 
 - `gcc`
 - `make`
@@ -22,12 +22,12 @@ Depuis la racine du depot :
 ```bash
 make help
 make all
-make 1
-make 10
+make 3
+make projet
 ```
 
-- `make all` compile les fichiers C executables trouves dans `week/`
-- `make <numero>` compile une semaine precise
+- `make all` compile tous les fichiers C executables trouvés dans `week/`
+- `make <numero/"projet">` compile une semaine precise
 
 ## Projet puzzle
 
@@ -51,22 +51,3 @@ Execution manuelle d'un niveau :
 ```bash
 ./puzzle map/level1.txt < map/level1-test-input.txt
 ```
-
-## Structure
-
-```text
-.
-|- Makefile
-|- week/
-|  |- 1/ ... 10/
-|  |- projet/
-|  |  |- puzzle.c
-|  |  |- test.sh
-|  |  `- map/
-|  `- DONE.md
-```
-
-## Notes
-
-- Les fichiers PDF dans les dossiers `week/` contiennent les enonces et solutions du cours.
-- Les tests du projet comparent la sortie exacte du programme avec les fichiers attendus.
