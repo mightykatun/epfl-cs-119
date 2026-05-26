@@ -1,6 +1,6 @@
-# ICC
+# ICC Mécanique BA2
 
-Depot de travail pour un cours de programmation en C.
+Dépot de travail pour un cours de programmation en C.
 
 ## Contenu
 
